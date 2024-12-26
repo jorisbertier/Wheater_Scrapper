@@ -20,6 +20,10 @@ soup = BeautifulSoup(html, 'html.parser')
 
 # Recherchez le div avec la classe spécifiée
 weather_bloc = soup.find_all('div', class_='leaflet-marker-icon')
+all_cities = {
+
+}
+
 
 # Si le div est trouvé, recherchez le span à l'intérieur
 for div in weather_bloc:
@@ -28,18 +32,23 @@ for div in weather_bloc:
     img_alt = div.find('img', alt=True)
     
     if span:
-        print("Contenu du span :", span.text)  # Extraction du texte du span
+        temperature = span.text.replace('°', '')
+        print("Content of span :", temperature)  # Extract text of span
+        
     else:
-        print("Aucun span trouvé.")
+        print("No span found.")
     if a_tag:
         href = a_tag['href']
-        location = href.split('/')[2]
-        print(location.capitalize())
+        city = href.split('/')[2]
+        print(f"City : {city.capitalize()}")
     if img_alt:
-        print(img_alt['alt'])
-else:
-    print("Aucun div trouvé.")
+        weather_today = img_alt['alt']
+        print(f"Weather today: {weather_today}")
+    all_cities[city] = {"temperature": temperature, "weather": weather_today}
+# else:
+#     print("No div found.")
 
+print(all_cities)
 map_time_picker = soup.find('div', id='map_time_picker')
 
 if map_time_picker:
