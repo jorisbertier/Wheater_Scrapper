@@ -40,15 +40,21 @@ for div in weather_bloc:
 else:
     print("Aucun div trouvé.")
 
-# map_time_picker = soup.find('div', id='map_time_picker')
-# print(map_time_picker)
-# if map_time_picker:
-#     days = map_time_picker.find_all('li')
+map_time_picker = soup.find('div', id='map_time_picker')
 
-#     for day in days:
-#         date = day.find('strong')
-#         if date:
-#             print(f"Date : {date.text}")
+if map_time_picker:
+
+    days = map_time_picker.find_all('li')
+    first_day = days[0]
+    date_today = first_day.find('strong')
+
+    if date_today:
+        print(f"Date of the day : {date_today.text}")
+
+    active_element = first_day.find('li', class_='sub_element active')
+    if active_element:
+        active_time = active_element.find('small')
+        print(active_time.text)
 # print(f"The weather today is : {weather}")
 # Voir le code html source
 # print(response.content)
