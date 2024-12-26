@@ -2,6 +2,8 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 import time
 import matplotlib.pyplot as plt
+from datetime import datetime
+import pytz
 
 
 driver = webdriver.Chrome()  # Or webdriver.Firefox() of navigator
@@ -68,18 +70,45 @@ if map_time_picker:
     if active_element:
         active_time = active_element.find('small')
         print(active_time.text)
-# print(f"The weather today is : {weather}")
-# print(response.content)
+
+paris_tz = pytz.timezone("Europe/Paris")
+
+# Obtenir la date et l'heure actuelle dans la timezone Paris
+now_in_paris = datetime.now(paris_tz)
+
+# Formater la date au format "14 décembre 2024"
+formatted_date = now_in_paris.strftime("%d %B %Y")
+
+# Mettre le nom du mois en français
+formatted_date = formatted_date.capitalize()
+
 
 cities = list(all_cities.keys())
 temperatures = [int(city_data['temperature']) for city_data in all_cities.values()]
+weathers = [city_data['weather'] for city_data in all_cities.values()]
+weather_colors = {
+    'Ensoleillé': 'gold',
+    'Eclaircies': 'lightblue',
+    'Brume': 'gray',
+    'Très nuageux': 'darkblue'
+}
 
+weather_labels = list(weather_colors.keys())
 max_temp = int(max(temperatures))
 min_temp = int(min(temperatures))
 
 plt.bar(height=temperatures, x=cities, label="Température (°C)", color="skyblue", width=0.6)
 
-plt.title("Temperature by cities")
+for i, (temp, weather) in enumerate(zip(temperatures, weathers)):
+    plt.scatter(
+        x=i,
+        y=temp + 0.5,  
+        color=weather_colors[weather],
+        s=50,
+        label=weather if weather not in plt.gca().get_legend_handles_labels()[1] else ""  # Evit duplicate
+    )
+
+plt.title(f"Temperature by cities {formatted_date}")
 plt.xlabel("All cities France")
 plt.ylabel("Temperature (°C)")
 
@@ -87,6 +116,10 @@ plt.ylim(min_temp, max_temp + 2)
 # plt.yticks(range(0, max_temp + 3, 2))
 plt.xticks(rotation=90)
 
-plt.legend(loc="upper right") 
+legend_elements = [
+    plt.Line2D([0], [0], marker='o', color='w', label=label, markerfacecolor=color, markersize=10)
+    for label, color in weather_colors.items()
+]
+plt.legend(handles=legend_elements, loc="upper right")
 
 plt.show()
