@@ -44,7 +44,15 @@ for div in weather_bloc:
     if img_alt:
         weather_today = img_alt['alt']
         print(f"Weather today: {weather_today}")
-    all_cities[city] = {"temperature": temperature, "weather": weather_today}
+    if city and temperature and weather_today:
+        if city not in all_cities:  # Vérifier si la ville n'existe pas déjà
+            all_cities[city] = {"temperature": temperature, "weather": weather_today}
+            print(f"Added {city} with temperature {temperature}°C and weather {weather_today}.")
+        else:
+            print(f"{city} already exists in the list, updating data.")
+            all_cities[city].update({"temperature": temperature, "weather": weather_today})
+    else:
+        print(f"Data incomplete for {city}. Skipping.")
 # else:
 #     print("No div found.")
 
