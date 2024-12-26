@@ -1,7 +1,7 @@
-import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 import time
+import matplotlib.pyplot as plt
 
 
 driver = webdriver.Chrome()  # Or webdriver.Firefox() of navigator
@@ -20,9 +20,7 @@ soup = BeautifulSoup(html, 'html.parser')
 
 # Find the div with the specified class
 weather_bloc = soup.find_all('div', class_='leaflet-marker-icon')
-all_cities = {
-
-}
+all_cities = {}
 
 for div in weather_bloc:
     span = div.find('span', class_='icon_text')
@@ -72,3 +70,23 @@ if map_time_picker:
         print(active_time.text)
 # print(f"The weather today is : {weather}")
 # print(response.content)
+
+cities = list(all_cities.keys())
+temperatures = [int(city_data['temperature']) for city_data in all_cities.values()]
+
+max_temp = int(max(temperatures))
+min_temp = int(min(temperatures))
+
+plt.bar(height=temperatures, x=cities, label="Température (°C)", color="skyblue", width=0.6)
+
+plt.title("Temperature by cities")
+plt.xlabel("All cities France")
+plt.ylabel("Temperature (°C)")
+
+plt.ylim(min_temp, max_temp + 2)
+# plt.yticks(range(0, max_temp + 3, 2))
+plt.xticks(rotation=90)
+
+plt.legend(loc="upper right") 
+
+plt.show()
