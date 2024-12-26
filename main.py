@@ -4,9 +4,11 @@ import time
 import matplotlib.pyplot as plt
 from datetime import datetime
 import pytz
+import smtplib
+import schedule
 
 
-driver = webdriver.Chrome()  # Or webdriver.Firefox() of navigator
+driver = webdriver.Chrome() 
 
 url = "https://meteofrance.com/"
 driver.get(url)
@@ -70,51 +72,65 @@ if map_time_picker:
     if active_element:
         active_time = active_element.find('small')
         print(active_time.text)
+send_email()
+def create_graph():
+    paris_tz = pytz.timezone("Europe/Paris")
 
-paris_tz = pytz.timezone("Europe/Paris")
+    now_in_paris = datetime.now(paris_tz)
 
-now_in_paris = datetime.now(paris_tz)
+    formatted_date = now_in_paris.strftime("%d %B %Y")
+    formatted_date = formatted_date.capitalize()
 
-formatted_date = now_in_paris.strftime("%d %B %Y")
-formatted_date = formatted_date.capitalize()
+    cities = list(all_cities.keys())
+    temperatures = [int(city_data['temperature']) for city_data in all_cities.values()]
+    weathers = [city_data['weather'] for city_data in all_cities.values()]
+    weather_colors = {
+        'Ensoleillé': 'gold',
+        'Eclaircies': 'lightblue',
+        'Brume': 'gray',
+        'Très nuageux': 'darkblue'
+    }
 
-cities = list(all_cities.keys())
-temperatures = [int(city_data['temperature']) for city_data in all_cities.values()]
-weathers = [city_data['weather'] for city_data in all_cities.values()]
-weather_colors = {
-    'Ensoleillé': 'gold',
-    'Eclaircies': 'lightblue',
-    'Brume': 'gray',
-    'Très nuageux': 'darkblue'
-}
+    weather_labels = list(weather_colors.keys())
+    max_temp = int(max(temperatures))
+    min_temp = int(min(temperatures))
 
-weather_labels = list(weather_colors.keys())
-max_temp = int(max(temperatures))
-min_temp = int(min(temperatures))
+    plt.bar(height=temperatures, x=cities, label="Température (°C)", color="skyblue", width=0.6)
 
-plt.bar(height=temperatures, x=cities, label="Température (°C)", color="skyblue", width=0.6)
+    for i, (temp, weather) in enumerate(zip(temperatures, weathers)):
+        plt.scatter(
+            x=i,
+            y=temp + 0.5,  
+            color=weather_colors[weather],
+            s=50,
+            label=weather if weather not in plt.gca().get_legend_handles_labels()[1] else ""  # Evit duplicate
+        )
 
-for i, (temp, weather) in enumerate(zip(temperatures, weathers)):
-    plt.scatter(
-        x=i,
-        y=temp + 0.5,  
-        color=weather_colors[weather],
-        s=50,
-        label=weather if weather not in plt.gca().get_legend_handles_labels()[1] else ""  # Evit duplicate
-    )
+    plt.title(f"Temperature by cities {formatted_date}")
+    plt.xlabel("All cities France")
+    plt.ylabel("Temperature (°C)")
 
-plt.title(f"Temperature by cities {formatted_date}")
-plt.xlabel("All cities France")
-plt.ylabel("Temperature (°C)")
+    plt.ylim(min_temp, max_temp + 2)
+    # plt.yticks(range(0, max_temp + 3, 2))
+    plt.xticks(rotation=90)
 
-plt.ylim(min_temp, max_temp + 2)
-# plt.yticks(range(0, max_temp + 3, 2))
-plt.xticks(rotation=90)
+    legend_elements = [
+        plt.Line2D([0], [0], marker='o', color='w', label=label, markerfacecolor=color, markersize=10)
+        for label, color in weather_colors.items()
+    ]
+    plt.legend(handles=legend_elements, loc="upper right")
+    plt.savefig('graph.png')
+    plt.close()
+    # plt.show()
 
-legend_elements = [
-    plt.Line2D([0], [0], marker='o', color='w', label=label, markerfacecolor=color, markersize=10)
-    for label, color in weather_colors.items()
-]
-plt.legend(handles=legend_elements, loc="upper right")
 
-plt.show()
+def job():
+
+    create_graph()  
+    # send_email()
+
+    schedule.every().hour.do(job)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(60)
