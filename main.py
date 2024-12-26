@@ -73,15 +73,10 @@ if map_time_picker:
 
 paris_tz = pytz.timezone("Europe/Paris")
 
-# Obtenir la date et l'heure actuelle dans la timezone Paris
 now_in_paris = datetime.now(paris_tz)
 
-# Formater la date au format "14 décembre 2024"
 formatted_date = now_in_paris.strftime("%d %B %Y")
-
-# Mettre le nom du mois en français
 formatted_date = formatted_date.capitalize()
-
 
 cities = list(all_cities.keys())
 temperatures = [int(city_data['temperature']) for city_data in all_cities.values()]
