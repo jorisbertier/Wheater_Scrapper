@@ -4,28 +4,26 @@ from selenium import webdriver
 import time
 
 
-driver = webdriver.Chrome()  # Or webdriver.Firefox() navegator
+driver = webdriver.Chrome()  # Or webdriver.Firefox() of navigator
 
 url = "https://meteofrance.com/"
 driver.get(url)
 
-# Attendez quelques secondes pour que le JavaScript charge le contenu
+# Wait a few seconds for the JavaScript to load the content
 time.sleep(5)
 
-# Récupérez le contenu HTML rendu par le navigateur
+# Retrieve the HTML content rendered by the browserr
 html = driver.page_source
 
-# Analysez le HTML avec BeautifulSoup
+# Parse HTML with BeautifulSoup
 soup = BeautifulSoup(html, 'html.parser')
 
-# Recherchez le div avec la classe spécifiée
+# Find the div with the specified class
 weather_bloc = soup.find_all('div', class_='leaflet-marker-icon')
 all_cities = {
 
 }
 
-
-# Si le div est trouvé, recherchez le span à l'intérieur
 for div in weather_bloc:
     span = div.find('span', class_='icon_text')
     a_tag = div.find('a', href=True)
@@ -45,7 +43,7 @@ for div in weather_bloc:
         weather_today = img_alt['alt']
         print(f"Weather today: {weather_today}")
     if city and temperature and weather_today:
-        if city not in all_cities:  # Vérifier si la ville n'existe pas déjà
+        if city not in all_cities: 
             all_cities[city] = {"temperature": temperature, "weather": weather_today}
             print(f"Added {city} with temperature {temperature}°C and weather {weather_today}.")
         else:
@@ -73,5 +71,4 @@ if map_time_picker:
         active_time = active_element.find('small')
         print(active_time.text)
 # print(f"The weather today is : {weather}")
-# Voir le code html source
 # print(response.content)
