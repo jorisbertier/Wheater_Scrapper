@@ -53,8 +53,8 @@ for div in weather_bloc:
             all_cities[city].update({"temperature": temperature, "weather": weather_today})
     else:
         print(f"Data incomplete for {city}. Skipping.")
-# else:
-#     print("No div found.")
+else:
+    print("No div found.")
 
 print(all_cities)
 map_time_picker = soup.find('div', id='map_time_picker')
